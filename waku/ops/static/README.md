@@ -7,6 +7,7 @@ files to change the UI; edit `dashboard.py` to change the server/API.
 - `index.html` — the shell (sidebar nav, `<main>`, chat dock) + the ordered
   `<script>` tags.
 - `style.css` — one flat file, `:root` design tokens at the top, light + dark.
+  Light is the base; dark overrides it.
 - `js/` — the app, split by concern (below).
 
 ## The files (`js/`), in load order
@@ -47,6 +48,12 @@ Data flows one way: `refresh()` (main.js) fetches `/api/data` into the global
   what the engine runs (`test_graph_topology_payload.py` pins it). To change the
   chart's shape, change the workflow in `waku/graph/workflows/`. Graph ids are
   namespaced `g-<node>` / `g-<src>-<dst>` so they can never collide with archSVG's.
+- **Theme colours live in the palette, never in a page rule.** The sidebar's
+  theme button cycles System → Light → Dark by setting `data-theme` on `<html>`;
+  a rule with its own `@media (prefers-color-scheme:…)` block would ignore the
+  button and keep following the OS. Add a `--token` to both dark palettes
+  instead (they are duplicated on purpose — CSS can't share one body between two
+  selectors). `test_dashboard_theme.py` guards both halves.
 - **No build step / no framework / no new dependencies.** If you reach for one,
   stop — the whole point is that this reads and runs with nothing installed.
 - **No emojis in UI** (project rule). Known pre-existing exception: the `★`/`☆`

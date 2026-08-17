@@ -1,3 +1,6 @@
+/* Light is the base palette; dark overrides it. Every colour the two schemes
+   disagree on is a token here — a page rule must never carry its own
+   prefers-color-scheme block, or the theme button below can't reach it. */
 :root{
     /* let native UI (scrollbars, form controls) follow the active scheme,
        otherwise they stay light even in dark mode */
@@ -6,14 +9,41 @@
     --ink:#21201d;--ink2:#6f6e69;--ink3:#a3a29d;
     --accent:#5e6ad2;--accent-soft:#eef0fb;
     --good:#1f7a4d;--good-soft:#e8f4ee;--bad:#c0392b;--bad-soft:#faeceb;
+    --warn:#a87312;
+    --code-bg:rgba(0,0,0,0.035);--code-head-bg:rgba(0,0,0,0.025);
+    --sql-bg:#1c1c20;--sql-ink:#e6e6ea;
+    --card-shadow:0 5px 18px rgba(33,32,29,.05);
     --mono:ui-monospace,'SF Mono',Menlo,monospace;
   }
-  @media (prefers-color-scheme:dark){:root{
+  /* The theme button in the sidebar writes data-theme="light"|"dark" on <html>;
+     with no attribute (System) the OS decides. So the dark values are needed in
+     two places that must beat each other in both directions — when the OS says
+     dark and the user hasn't forced light, and when the user has forced dark.
+     Plain CSS has no way to share one body between two selectors, so the list
+     is duplicated on purpose: change one, change the other. */
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
     --bg:#101012;--panel:#18181b;--line:#26262a;--line2:#333338;
     --ink:#ececea;--ink2:#96959f;--ink3:#5f5e66;
     --accent:#7c8aec;--accent-soft:#20223a;
     --good:#4cc38a;--good-soft:#12291d;--bad:#e5655a;--bad-soft:#331714;
+    --warn:#d9a441;
+    --code-bg:rgba(0,0,0,0.40);--code-head-bg:rgba(255,255,255,0.04);
+    --sql-bg:#0b0b0d;--sql-ink:#d6d7de;
+    --card-shadow:0 5px 18px rgba(0,0,0,.25);
   }}
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#101012;--panel:#18181b;--line:#26262a;--line2:#333338;
+    --ink:#ececea;--ink2:#96959f;--ink3:#5f5e66;
+    --accent:#7c8aec;--accent-soft:#20223a;
+    --good:#4cc38a;--good-soft:#12291d;--bad:#e5655a;--bad-soft:#331714;
+    --warn:#d9a441;
+    --code-bg:rgba(0,0,0,0.40);--code-head-bg:rgba(255,255,255,0.04);
+    --sql-bg:#0b0b0d;--sql-ink:#d6d7de;
+    --card-shadow:0 5px 18px rgba(0,0,0,.25);
+  }
+  /* pin native UI too, or a forced-light page keeps dark scrollbars on a dark OS */
+  :root[data-theme="light"]{color-scheme:light}
   *{box-sizing:border-box;margin:0}
   /* thin theme-colored scrollbars (like the chat dock's), instead of the
      chunky native ones */
@@ -62,6 +92,11 @@
      the header that comes straight after the brand opens the list, so it has
      nothing to be separated from. */
   nav .brand + .grp{margin-top:6px;border-top:none;padding-top:2px}
+  /* theme cycler — sits with the nav links, reads quieter than one */
+  nav .themebtn{display:block;width:100%;text-align:left;background:none;border:none;cursor:pointer;
+       color:var(--ink3);font-family:inherit;font-size:12.5px;padding:6px 10px 6px 20px;
+       border-radius:6px;margin-top:2px}
+  nav .themebtn:hover{background:var(--panel);color:var(--ink)}
   main{flex:1;min-width:0;height:100vh;overflow-y:auto;padding:0 40px 32px}
   .pagehead{position:sticky;top:0;z-index:6;background:var(--bg);padding:28px 0 10px;
             border-bottom:1px solid var(--line);margin-bottom:18px}
@@ -123,11 +158,9 @@
   .r .mdtable th{background:var(--bg);font-weight:600;color:var(--ink)}
   /* fenced code blocks */
   .mdcode{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin:10px 0;
-          background:rgba(0,0,0,0.035)}
-  @media(prefers-color-scheme:dark){.mdcode{background:rgba(0,0,0,0.40)}}
+          background:var(--code-bg)}
   .mdcode-head{display:flex;align-items:center;justify-content:space-between;padding:5px 12px;
-               border-bottom:1px solid var(--line);background:rgba(0,0,0,0.025)}
-  @media(prefers-color-scheme:dark){.mdcode-head{background:rgba(255,255,255,0.04)}}
+               border-bottom:1px solid var(--line);background:var(--code-head-bg)}
   .mdcode-lang{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;
                letter-spacing:.08em;color:var(--ink3);font-weight:600}
   .mdcode-copy{background:none;border:1px solid var(--line2);border-radius:6px;color:var(--ink3);
@@ -240,9 +273,10 @@
   .srcpill.mcp{background:var(--good-soft);color:var(--good)}
   .srcpill.apple{background:#0000;border:1px solid var(--line2);color:var(--ink2)}
   /* read-only SQL console (the Supabase-editor idea, scoped down) */
-  .sqlbox{width:100%;min-height:70px;background:#0b0b0d;color:#d6d7de;border:1px solid var(--line2);
+  /* stays dark in BOTH themes — a console reads as a console. Light mode just
+     lifts it a shade so it doesn't punch a hole in the page. */
+  .sqlbox{width:100%;min-height:70px;background:var(--sql-bg);color:var(--sql-ink);border:1px solid var(--line2);
           border-radius:8px;padding:11px 13px;font:12.5px/1.5 var(--mono);resize:vertical;outline:none}
-  @media (prefers-color-scheme:light){.sqlbox{background:#1c1c20;color:#e6e6ea}}
   .sqlbox:focus{border-color:var(--accent)}
   .qexample{font-family:var(--mono);font-size:11.5px;color:var(--accent);cursor:pointer;border-bottom:1px dashed var(--accent)}
   /* session picker in the chat surfaces */
@@ -526,7 +560,7 @@ details.subterm > summary.subterm-h::-webkit-details-marker{ display:none; }
 .connsection + .connsection h2{margin-top:30px}
 .conngrid{align-items:stretch}
 .conncard{min-height:190px;transition:border-color .12s ease,box-shadow .12s ease}
-.conncard:hover{border-color:var(--line2);box-shadow:0 5px 18px rgba(33,32,29,.05)}
+.conncard:hover{border-color:var(--line2);box-shadow:var(--card-shadow)}
 .connlogo{object-fit:contain}
 .connstatus{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink2)}
 .conndot{width:9px;height:9px;border-radius:99px;background:var(--ink3);flex-shrink:0}
@@ -534,7 +568,7 @@ details.subterm > summary.subterm-h::-webkit-details-marker{ display:none; }
 .connstatus.connected .conndot{background:var(--good)}
 .connstatus.error{color:var(--bad)}
 .connstatus.error .conndot{background:var(--bad)}
-.connstatus.needs-setup{color:#a87312}
+.connstatus.needs-setup{color:var(--warn)}
 .connstatus.needs-setup .conndot{background:#c8951f}
 /* Configured but unproven: deliberately calm. Amber here would read as a
    warning about something that is merely untested, which is the whole bug
@@ -585,10 +619,6 @@ details.subterm > summary.subterm-h::-webkit-details-marker{ display:none; }
 .connmodal-message{flex:1;min-width:160px;color:var(--ink3);font-size:11.5px}
 .conn-force{margin-left:6px}
 .connmodal :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-@media (prefers-color-scheme:dark){
-  .conncard:hover{box-shadow:0 5px 18px rgba(0,0,0,.25)}
-  .connstatus.needs-setup{color:#d9a441}
-}
 @media (max-width:720px){
   .conngrid{grid-template-columns:1fr}
   .connmodal-back{padding:10px}
@@ -604,7 +634,7 @@ details.subterm > summary.subterm-h::-webkit-details-marker{ display:none; }
 .ma-legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;font-size:12px}
 .ma-o{font-family:var(--mono);font-size:11px;padding:1px 7px;border-radius:99px;border:1px solid var(--line2)}
 .ma-pass{color:var(--good);border-color:var(--good)}
-.ma-stale{color:#a87312;border-color:#c8951f}
+.ma-stale{color:var(--warn);border-color:#c8951f}
 /* invented is the headline failure — a confident answer to something it was
    never told. It gets the alarm colour; miss, an honest gap, deliberately does not. */
 .ma-invented{color:var(--bad);border-color:var(--bad)}
