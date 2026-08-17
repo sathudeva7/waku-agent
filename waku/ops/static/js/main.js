@@ -129,6 +129,27 @@ function wireChrome(){
   if (nt) nt.onclick = () => setNav(true);
   if (nr) nr.onclick = () => setNav(false);
   setNav(localStorage.getItem("navHidden") === "1");
+  wireTheme();
+}
+// --- theme: System (whatever the OS says) -> Light -> Dark -> System.
+// The choice is one attribute on <html>; style.css has a palette for each
+// forced value and falls back to the prefers-color-scheme media query when
+// there's no attribute. index.html restores the saved value inline in <head>
+// so the page never flashes the wrong theme — this only re-applies it and
+// keeps the label honest.
+const THEMES = ["system", "light", "dark"];
+function wireTheme(){
+  const btn = document.getElementById("theme-toggle");
+  const apply = t => {
+    if (t === "system") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", t);
+    localStorage.setItem("waku_theme", t);
+    if (btn) btn.textContent = "Theme: " + t[0].toUpperCase() + t.slice(1);
+  };
+  let cur = localStorage.getItem("waku_theme");
+  if (!THEMES.includes(cur)) cur = "system";
+  apply(cur);
+  if (btn) btn.onclick = () => { cur = THEMES[(THEMES.indexOf(cur) + 1) % THEMES.length]; apply(cur); };
 }
 
 // --- voice on the dashboard: record in the browser, transcribe on the server

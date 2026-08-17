@@ -1,7 +1,13 @@
 <!doctype html><html><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Waku わく</title>
-<link rel="stylesheet" href="/static/style.css"></head><body>
+<link rel="stylesheet" href="/static/style.css">
+<!-- Theme is applied HERE, inline and before the body, not in main.js: main.js
+     loads last, so a forced light theme would paint the dark OS default first
+     and flash. Cycling the button is main.js's job; only the restore is here. -->
+<script>(function(){try{var t=localStorage.getItem("waku_theme");
+  if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+</head><body>
 <nav id="nav">
   <div class="brand">Waku わく<small id="model" style="cursor:pointer" title="click to change the model" onclick="location.hash='#models'"></small>
     <button id="nav-toggle" title="Hide sidebar">&#10094;</button></div>
@@ -29,6 +35,7 @@
   <a href="#models" data-v="models">Models</a>
   <a href="#connections" data-v="connections">Connections</a>
   <a href="#settings" data-v="settings">Behaviour</a>
+  <button id="theme-toggle" class="themebtn" title="Cycle theme: System, Light, Dark"></button>
 </nav>
 <div class="resizer" id="nav-resizer" title="Drag to resize sidebar"></div>
 <main>

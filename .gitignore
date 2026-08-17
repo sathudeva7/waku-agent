@@ -1,7 +1,6 @@
 __pycache__/
 *.pyc
 .venv/
-.env
 state.db
 traces/
 *.ics
@@ -29,3 +28,5 @@ credentials.json
 client_secret*.json
 *token*.json
 .gcp/
+config.bat
+node_modules
